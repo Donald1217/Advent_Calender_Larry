@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOCONNER Advent Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; 
+            margin: 0; padding: 0;
+            background-color: #3c5d6d; 
+            background-image: url('https://i.ibb.co/qMtB9d9h/image.png'); 
+            background-size: contain; 
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-attachment: scroll; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .top-phrase {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px; 
+            letter-spacing: 0.4em; 
+            font-weight: 900;
+            color: #fff;
+            margin-top: 50px; 
+            text-align: center;
+            z-index: 10;
+            text-shadow: 2px 2px 15px rgba(0,0,0,0.6);
+            text-transform: uppercase;
+        }
+
+        .header-box {
+            background-color: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(10px);
+            width: 90%; max-width: 550px;
+            margin: 45vh auto 30px auto; 
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid #E2A344;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .main-title { 
+            font-family: 'Playfair Display', serif; 
+            font-size: clamp(30px, 7vw, 45px); 
+            font-weight: 900; 
+            margin: 0 0 10px 0; 
+            letter-spacing: 0.1em;
+        }
+        
+        #live-clock { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #000; }
+        
+        .calendar-grid {
+            display: grid;
+            /* 8일치이므로 한 줄에 4개씩 배치하면 예쁩니다 */
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px;
+            width: 95%; max-width: 600px;
+            margin-bottom: 50px;
+            z-index: 5;
+        }
+
+        /* 모바일에서는 한 줄에 2개씩 보이도록 조절 */
+        @media (max-width: 480px) {
+            .calendar-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .door {
+            aspect-ratio: 1/1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 3px solid #E2A344; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 15px; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 5px;
+        }
+        .door:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 10px 20px rgba(226, 163, 68, 0.4);
+            background-color: #ffffff; 
+        }
+
+        .door .month { font-size: 11px; text-transform: uppercase; color: #E2A344; font-weight: 900; margin-bottom: 2px; }
+        .door .day { font-size: 28px; font-weight: 900; color: #000; line-height: 1; }
+
+        .footer-phrase {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px; 
+            font-weight: 700;
+            color: #fff;
+            margin-top: auto;
+            padding-bottom: 60px;
+            text-align: center;
+            z-index: 10;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+            letter-spacing: 0.3em;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 9999;
+        }
+        .modal-content {
+            background-color: #fff; 
+            margin: 8vh auto; 
+            padding: 45px;
+            width: 90%; 
+            max-width: 650px; 
+            max-height: 80vh; 
+            overflow-y: auto; 
+            border-radius: 25px; 
+            border: 6px solid #E2A344;
+            position: relative; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        #letter-content {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; 
+            font-size: 18px; 
+            line-height: 2.5em; 
+            color: #333; 
+            white-space: pre-wrap;
+            background-image: linear-gradient(transparent 2.4em, #E2A344 2.4em, #E2A344 2.5em);
+            background-size: 100% 2.5em; 
+            background-attachment: local;
+        }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 35px; cursor: pointer; color: #E2A344; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="top-phrase">ADVENT CALENDAR</div>
+
+    <div class="header-box">
+        <div class="main-title">SHOCONNER</div>
+        <div id="live-clock">로딩 중...</div>
+    </div>
+
+    <div class="calendar-grid" id="grid"></div>
+
+    <div class="footer-phrase">COUNTDOWN TO NEW YEAR</div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="letter-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // 시계 업데이트
+        function updateClock() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('live-clock').innerText = `TODAY is······ ${y}.${m}.${d}. ${hh}:${mm}:${ss}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 1. 편지 내용 (24일 ~ 31일)
+        const letters = {
+            "12-24": "크리스마스 이브 편지입니다.",
+            "12-25": "메리 크리스마스! 행복한 하루 되세요.",
+            "12-26": "편지 내용을 입력하세요.",
+            "12-27": "편지 내용을 입력하세요.",
+            "12-28": "편지 내용을 입력하세요.",
+            "12-29": "편지 내용을 입력하세요.",
+            "12-30": "편지 내용을 입력하세요.",
+            "12-31": "올해의 마지막 날입니다. 한 해 동안 고생 많으셨어요!"
+        };
+
+        // 2. 날짜 설정 (24일 ~ 31일)
+        const dates = [
+            {m: 12, d: 24, name: 'Dec'}, {m: 12, d: 25, name: 'Dec'},
+            {m: 12, d: 26, name: 'Dec'}, {m: 12, d: 27, name: 'Dec'},
+            {m: 12, d: 28, name: 'Dec'}, {m: 12, d: 29, name: 'Dec'},
+            {m: 12, d: 30, name: 'Dec'}, {m: 12, d: 31, name: 'Dec'}
+        ];
+
+        const grid = document.getElementById('grid');
+        dates.forEach(date => {
+            const door = document.createElement('div');
+            door.className = 'door';
+            door.innerHTML = `<div class="month">${date.name}</div><div class="day">${date.d}</div>`;
+            door.onclick = () => openLetter(date.m, date.d);
+            grid.appendChild(door);
+        });
+
+        function openLetter(m, d) {
+            const now = new Date();
+            const todayM = now.getMonth() + 1;
+            const todayD = now.getDate();
+            const key = `12-${d}`;
+
+            // 오늘 날짜가 클릭한 날짜보다 크거나 같을 때만 열림 (12월 기준)
+            let canOpen = (todayM === 12 && todayD >= d);
+
+            if (canOpen) {
+                document.getElementById('letter-content').innerText = letters[key] || "편지를 작성 중입니다.";
+                document.getElementById('modal').style.display = "block";
+            } else {
+                alert(`12월 ${d}일에 열 수 있습니다!`);
+            }
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = "none"; }
+        window.onclick = function(event) { if (event.target == document.getElementById('modal')) closeModal(); }
+    </script>
+</body>
+</html>
