@@ -42,7 +42,7 @@
             margin: 45vh auto 30px auto; 
             padding: 25px;
             border-radius: 20px;
-            border: 2px solid #E2A344;
+            border: 2px solid #1a2a6c;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             text-align: center;
             z-index: 10;
@@ -76,7 +76,7 @@
         .door {
             aspect-ratio: 1/1;
             background-color: rgba(255, 255, 255, 0.9);
-            border: 3px solid #E2A344; 
+            border: 3px solid #1a2a6c; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; border-radius: 15px; 
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -88,8 +88,8 @@
             background-color: #ffffff; 
         }
 
-        .door .month { font-size: 11px; text-transform: uppercase; color: #E2A344; font-weight: 900; margin-bottom: 2px; }
-        .door .day { font-size: 28px; font-weight: 900; color: #000; line-height: 1; }
+        .door .month { font-size: 18px; text-transform: uppercase; color: #000; font-weight: 900; margin-bottom: 2px; }
+        .door .day { font-size: 32px; font-weight: 900; color: #000; line-height: 1; }
 
         .footer-phrase {
             font-family: 'Playfair Display', serif;
@@ -118,18 +118,18 @@
             max-height: 80vh; 
             overflow-y: auto; 
             border-radius: 25px; 
-            border: 6px solid #E2A344;
+            border: 6px solid #FFE08C;
             position: relative; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
         #letter-content {
-            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; 
-            font-size: 18px; 
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            font-size: 17px; 
             line-height: 2.5em; 
             color: #333; 
             white-space: pre-wrap;
-            background-image: linear-gradient(transparent 2.4em, #E2A344 2.4em, #E2A344 2.5em);
+            background-image: linear-gradient(transparent 2.4em, #FFE08C 2.4em, #FFE08C 2.5em);
             background-size: 100% 2.5em; 
             background-attachment: local;
         }
@@ -152,7 +152,10 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="letter-content"></div>
+            <div id="modal-body-content">
+                <img id="letter-image" src="" alt="Christmas Image" style="max-width: 100%; height: auto; margin-bottom: 20px; border-radius: 10px; display: none;">
+                <div id="letter-content"></div>
+            </div>
         </div>
     </div>
 
@@ -173,22 +176,27 @@
 
         // 1. 편지 내용 (24일 ~ 31일)
         const letters = {
-            "12-24": "크리스마스 이브 편지입니다.",
-            "12-25": "메리 크리스마스! 행복한 하루 되세요.",
-            "12-26": "편지 내용을 입력하세요.",
-            "12-27": "편지 내용을 입력하세요.",
-            "12-28": "편지 내용을 입력하세요.",
-            "12-29": "편지 내용을 입력하세요.",
-            "12-30": "편지 내용을 입력하세요.",
-            "12-31": "올해의 마지막 날입니다. 한 해 동안 고생 많으셨어요!"
+            "12-24": " 메리 크리스마스 이브, 래리.\n 이제 커다란 선물 열어도 돼.\n 별건 아니지만 기분은 낼 수 있잖아.\n 그래도 이런 식으로 재밌게 주고 싶었거든.",
+            "12-25": " 메리 크리스마스, 래리.\n 화이트 크리스마스면 더 좋을 텐데.\n 코 자꾸 누르지 마. 떨어지잖아.\n 아, 이걸 잊으면 큰일이지.\n <b>I LOVE YOU. Larry.<b>",
+            "12-26": "자 여기에는 코코아밤 링크를 넣을 겁니다.\n 이런 걸 한 번 주고 싶었어.\n 따뜻한 코코아 한잔 같이 마신 뒤에 \n 우리 같이 끌어안고 잠들면 우울과 악몽도 도망갈걸.\n 커피 대신이야. 너 약도 새로 탔잖아.\n 물도 없이 씹어 먹는 내가 할 말은 아닌 거 알거든. \n 그래도 연말 분위기 제대로잖아.",
+            "12-27": "자 여기에는 도니래리 스티커를 넣을 겁니다.",
+            "12-28": "자 여기에는 이제 편지를 써야 합니다.",
+            "12-29": "여기에는 캔들을 줄 겁니다.",
+            "12-30": "여기에는 편지를 줄 겁니다.",
+            "12-31": "마무리 편지 + 커미션을 하나 더 넣을까 고민 중입니다."
+        };
+
+	const images = {
+            "12-25": "https://i.ibb.co/Q3V2786s/Kakao-Talk-20251220-012044940.jpg" // 
+            // 다른 날짜에 이미지를 추가하고 싶다면 여기에 "월-일": "이미지URL" 형식으로 추가
         };
 
         // 2. 날짜 설정 (24일 ~ 31일)
         const dates = [
-            {m: 12, d: 24, name: 'Dec'}, {m: 12, d: 25, name: 'Dec'},
-            {m: 12, d: 26, name: 'Dec'}, {m: 12, d: 27, name: 'Dec'},
-            {m: 12, d: 28, name: 'Dec'}, {m: 12, d: 29, name: 'Dec'},
-            {m: 12, d: 30, name: 'Dec'}, {m: 12, d: 31, name: 'Dec'}
+            {m: 12, d: 24, name: 'December'}, {m: 12, d: 25, name: 'December'},
+            {m: 12, d: 26, name: 'December'}, {m: 12, d: 27, name: 'December'},
+            {m: 12, d: 28, name: 'December'}, {m: 12, d: 29, name: 'December'},
+            {m: 12, d: 30, name: 'December'}, {m: 12, d: 31, name: 'December'}
         ];
 
         const grid = document.getElementById('grid');
@@ -207,11 +215,22 @@
             const key = `12-${d}`;
 
             // 오늘 날짜가 클릭한 날짜보다 크거나 같을 때만 열림 (12월 기준)
-            let canOpen = (todayM === 12 && todayD >= d);
+            let canOpen = true;
 
             if (canOpen) {
-                document.getElementById('letter-content').innerText = letters[key] || "편지를 작성 중입니다.";
-                document.getElementById('modal').style.display = "block";
+        // 편지 내용 출력
+        document.getElementById('letter-content').innerHTML = letters[key] || "편지를 작성 중입니다.";
+        
+        // 이미지 로직
+        const letterImage = document.getElementById('letter-image');
+        if (images && images[key]) {
+            letterImage.src = images[key];
+            letterImage.style.display = 'block';
+        } else if (letterImage) {
+            letterImage.style.display = 'none';
+        }
+
+        document.getElementById('modal').style.display = "block";
             } else {
                 alert(`12월 ${d}일에 열 수 있습니다!`);
             }
