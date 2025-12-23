@@ -215,7 +215,7 @@
             const key = `12-${d}`;
 
             // 오늘 날짜가 클릭한 날짜보다 크거나 같을 때만 열림 (12월 기준)
-            let canOpen = true;
+            let canOpen = (todayM === 12 && todayD >= d);
 
             if (canOpen) {
         // 편지 내용 출력
@@ -240,4 +240,5 @@
         window.onclick = function(event) { if (event.target == document.getElementById('modal')) closeModal(); }
     </script>
 </body>
+
 </html>
